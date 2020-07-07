@@ -56,7 +56,7 @@ module.exports = (md, o) => {
   }
 
   md.renderer.rules.toc_open = function(tokens, index) {
-    var tocOpenHtml = `<div class="${options.containerClass}">`;
+    var tocOpenHtml = `<details class="${options.containerClass}">`;
 
     if (options.containerHeaderHtml) {
       tocOpenHtml += options.containerHeaderHtml;
@@ -72,7 +72,7 @@ module.exports = (md, o) => {
       tocFooterHtml = options.containerFooterHtml;
     }
 
-    return tocFooterHtml + `</div>`;
+    return tocFooterHtml + `</details>`;
   };
 
   md.renderer.rules.toc_body = function(tokens, index) {
