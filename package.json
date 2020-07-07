@@ -31,5 +31,8 @@
     "mocha": "~5.2.0",
     "markdown-it": "~8.1.0",
     "markdown-it-anchor": "~5.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
