@@ -1,7 +1,7 @@
 {
   "license": "MIT",
-  "version": "0.0.1",
-  "name": "@takanorip/markdown-it-table-of-contents",
+  "version": "0.4.4",
+  "name": "markdown-it-table-of-contents",
   "main": "index.js",
   "scripts": {
     "test": "export NODE_ENV=test; mocha test --recursive"
@@ -31,8 +31,5 @@
     "mocha": "~5.2.0",
     "markdown-it": "~8.1.0",
     "markdown-it-anchor": "~5.0.1"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

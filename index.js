@@ -3,6 +3,7 @@ const slugify = (s) => encodeURIComponent(String(s).trim().toLowerCase().replace
 const defaults = {
   includeLevel: [ 1, 2 ],
   containerClass: 'table-of-contents',
+  containerTag: 'div',
   slugify,
   markerPattern: /^\[\[toc\]\]/im,
   listType: 'ul',
@@ -56,7 +57,7 @@ module.exports = (md, o) => {
   }
 
   md.renderer.rules.toc_open = function(tokens, index) {
-    var tocOpenHtml = `<details class="${options.containerClass}">`;
+    var tocOpenHtml = `<${options.containerTag} class="${options.containerClass}">`;
 
     if (options.containerHeaderHtml) {
       tocOpenHtml += options.containerHeaderHtml;
@@ -72,7 +73,7 @@ module.exports = (md, o) => {
       tocFooterHtml = options.containerFooterHtml;
     }
 
-    return tocFooterHtml + `</details>`;
+    return tocFooterHtml + `</${options.containerTag}>`;
   };
 
   md.renderer.rules.toc_body = function(tokens, index) {
