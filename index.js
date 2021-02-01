@@ -1,23 +1,27 @@
 'use strict';
-const slugify = (s) => encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-'));
-const defaults = {
+var slugify = function(s){
+  return encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-'))
+};
+var defaults = {
   includeLevel: [ 1, 2 ],
   containerClass: 'table-of-contents',
   containerTag: 'div',
-  slugify,
+  slugify: slugify,
   markerPattern: /^\[\[toc\]\]/im,
   listType: 'ul',
-  format: undefined,
+  format: function(content, md) {
+    return md.renderInline(content);
+  },
   forceFullToc: false,
   containerHeaderHtml: undefined,
   containerFooterHtml: undefined,
   transformLink: undefined,
 };
 
-module.exports = (md, o) => {
-  const options = Object.assign({}, defaults, o);
-  const tocRegexp = options.markerPattern;
-  let gstate;
+module.exports = function(md, o) {
+  var options = Object.assign({}, defaults, o);
+  var tocRegexp = options.markerPattern;
+  var gstate;
 
   function toc(state, silent) {
     var token;
@@ -78,32 +82,7 @@ module.exports = (md, o) => {
 
   md.renderer.rules.toc_body = function(tokens, index) {
     if (options.forceFullToc) {
-      /*
-      
-      Renders full TOC even if the hierarchy of headers contains
-      a header greater than the first appearing header
-      
-      ## heading 2
-      ### heading 3
-      # heading 1
-      
-      Result TOC:
-      - heading 2
-         - heading 3
-      - heading 1 
-
-      */
-      var tocBody = '';
-      var pos = 0;
-      var tokenLength = gstate && gstate.tokens && gstate.tokens.length;
-
-      while (pos < tokenLength) {
-        var tocHierarchy = renderChildsTokens(pos, gstate.tokens);
-        pos = tocHierarchy[0];
-        tocBody += tocHierarchy[1];
-      }
-
-      return tocBody;
+      throw("forceFullToc was removed in version 0.5.0. For more information, see https://github.com/Oktavilla/markdown-it-table-of-contents/pull/41")
     } else {
       return renderChildsTokens(0, gstate.tokens)[1];
     }
@@ -134,29 +113,32 @@ module.exports = (md, o) => {
         }
         if (level < currentLevel) {
           // Finishing the sub headings
-          buffer += `</li>`;
+          buffer += "</li>";
           headings.push(buffer);
-          return [i, `<${options.listType}>${headings.join('')}</${options.listType}>`];
+          return [i, "<"+ options.listType +">"+ headings.join('') +"</"+ options.listType +">"];
         }
         if (level == currentLevel) {
           // Finishing the sub headings
-          buffer += `</li>`;
+          buffer += "</li>";
           headings.push(buffer);
         }
       }
-      var slugifiedContent = options.slugify(heading.content);
+      var content = heading.children
+        .filter((token) => token.type === 'text' || token.type === 'code_inline')
+        .reduce((acc, t) => acc + t.content, '');
+      var slugifiedContent = options.slugify(content);
       var link = "#"+slugifiedContent;
       if (options.transformLink) {
           link = options.transformLink(link);
       }
       buffer = `<li><a href="${link}">`;
-      buffer += typeof options.format === 'function' ? options.format(heading.content) : heading.content;
+      buffer += options.format(content, md, link);
       buffer += `</a>`;
       i++;
     }
-    buffer += buffer === '' ? '' : `</li>`;
+    buffer += buffer === '' ? '' : '</li>';
     headings.push(buffer);
-    return [i, `<${options.listType}>${headings.join('')}</${options.listType}>`];
+    return [i, "<"+ options.listType +">"+ headings.join('') +"</"+ options.listType +">"];
   }
 
   // Catch all the tokens for iteration later
